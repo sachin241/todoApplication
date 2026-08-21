@@ -1,0 +1,2 @@
+{% extends 'base.html' %}
+{% block content %}<div class="row justify-content-center"><div class="col-md-6"><div class="card shadow-sm"><div class="card-body p-4"><h1 class="h3">Delete task?</h1><p>Are you sure you want to delete <strong>{{ task.title }}</strong>? This cannot be undone.</p><form method="post">{% csrf_token %}<button class="btn btn-danger">Delete task</button><a class="btn btn-outline-secondary" href="{% url 'tasks:list' %}">Cancel</a></form></div></div></div></div>{% endblock %}

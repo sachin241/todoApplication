@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Calendar{% endblock %}
+{% block content %}<div class="d-flex justify-content-between align-items-center mb-4"><div><h1 class="h2 mb-0">Calendar</h1><p class="text-secondary mb-0">Tasks are colored by priority: red, yellow, green.</p></div><a class="btn btn-primary" href="{% url 'tasks:create' %}">+ New task</a></div><div class="card shadow-sm"><div class="card-body"><div id="calendar"></div></div></div>
+<div class="modal fade" id="taskModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h2 class="modal-title fs-5" id="modalTitle">Task</h2><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><p id="modalMeta" class="text-secondary small"></p><p id="modalDescription" class="mb-0"></p></div><div class="modal-footer"><form id="modalToggleForm" method="post" class="me-auto">{% csrf_token %}<button class="btn btn-outline-success" id="modalToggleButton">Mark complete</button></form><a id="modalEdit" class="btn btn-primary">Edit task</a><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button></div></div></div></div>{% endblock %}
+{% block scripts %}<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script><script>
+document.addEventListener('DOMContentLoaded', function () {
+  const modalElement = document.getElementById('taskModal'), modal = new bootstrap.Modal(modalElement);
+  const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+    initialView: 'dayGridMonth', height: 'auto', events: '{% url "tasks:calendar_events" %}',
+    eventClick(info) { info.jsEvent.preventDefault(); const p = info.event.extendedProps;
+      document.getElementById('modalTitle').textContent = info.event.title;
+      document.getElementById('modalMeta').textContent = `${p.priority} · ${p.status} · ${info.event.start.toLocaleDateString()}`;
+      document.getElementById('modalDescription').textContent = p.description || 'No description.';
+      document.getElementById('modalEdit').href = p.editUrl; document.getElementById('modalToggleForm').action = p.toggleUrl;
+      document.getElementById('modalToggleButton').textContent = p.status === 'Completed' ? 'Reopen task' : 'Mark complete'; modal.show();
+    },
+    dateClick(info) { window.location.href = '{% url "tasks:create" %}?due_date=' + info.dateStr; }
+  }); calendar.render();
+});</script>{% endblock %}
